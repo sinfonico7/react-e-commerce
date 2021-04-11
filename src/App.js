@@ -7,7 +7,7 @@ import {auth,createUserProfileDocument} from './firebase/firebase.utils';
 import { connect } from 'react-redux'; 
 import {setCurrentUser} from './redux/user/user.actions';
 import './App.css';
-import { Route, Switch } from 'react-router';
+import { Route, Switch , Redirect} from 'react-router';
 
 
 class App extends React.Component{
@@ -36,6 +36,7 @@ class App extends React.Component{
     });
   }
 
+
   componentWillUnmount(){
     this.unsubscribeFromAuth();
   }
@@ -47,16 +48,29 @@ class App extends React.Component{
         <Switch>
           <Route exact path='/' component={HomePage}/>
           <Route path='/shop' component={ShopPage}/>
-          <Route path='/signin' component={SignInAndSignUpPage}/>
+          <Route 
+            exact 
+            path='/signin' 
+            render={() => 
+              this.props.currentUser ? (
+                <Redirect to='/'/>
+              ) : (
+                <SignInAndSignUpPage/>
+              )
+            }
+          />
         </Switch>
       </div>
     );
-  }
-
-  
+  }  
 }
+
+const mapStateToProps = ({user}) => ({
+  currentUser : user.currentUser
+})
+
 const mapDisptachTProps = dispatch => ({
   setCurrentUser : user => dispatch( setCurrentUser(user) )
 })
 
-export default connect(null,mapDisptachTProps) (App);
+export default connect(mapStateToProps,mapDisptachTProps) (App);
